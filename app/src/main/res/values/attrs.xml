@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <declare-styleable name="ExpandTextView">
+        <attr name="unexpanded_lines" format="integer"/>
+    </declare-styleable>
+</resources>
