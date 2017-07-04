@@ -193,10 +193,10 @@ public class ExpandTextView extends FrameLayout{
         maxValue = expandStatus.get(position).getMaxValue();
 
         if (isExpand) {
-            expandAnimator.setFloatValues(minValue, maxValue);
+            expandAnimator.setFloatValues(this.getHeight(), maxValue);
             rotateAnimator.setFloatValues(0, 180);
         } else {
-            expandAnimator.setFloatValues(maxValue, minValue);
+            expandAnimator.setFloatValues(this.getHeight(), minValue);
             rotateAnimator.setFloatValues(180, 0);
         }
         expandAnimator.start();
