@@ -3,9 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp">
+    android:layout_height="match_parent">
 
     <com.tm.expandlayoutinlist.view.ExpandTextView
         android:id="@+id/expand_layout"
@@ -25,10 +23,10 @@
             android:id="@+id/iv_expand"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:src="@mipmap/more_unfold"
+            android:padding="5dp"
+            android:src="@mipmap/icon_drop_down_remark"
             android:adjustViewBounds="true"
-            android:scaleX="1.2"
-            android:scaleY="1.2"
+            android:scaleType="fitXY"
             android:layout_gravity="right|bottom"
             />
     </com.tm.expandlayoutinlist.view.ExpandTextView>

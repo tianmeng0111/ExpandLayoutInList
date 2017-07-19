@@ -12,6 +12,8 @@
         android:id="@+id/lv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:listSelector="@android:color/transparent"/>
+        android:listSelector="@android:color/transparent"
+        android:scrollbarStyle="outsideOverlay"
+        tools:listitem="@layout/item_2"/>
 
 </FrameLayout>

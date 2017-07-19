@@ -7,6 +7,7 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -16,19 +17,26 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.tm.expandlayoutinlist.entity.ExpandData;
 import com.tm.expandlayoutinlist.R;
+import com.tm.expandlayoutinlist.entity.ExpandData;
 
+import java.util.List;
+
+/**
+ * Created by Tian on 2017/7/3.
+ */
 public class ExpandTextView extends FrameLayout{
 
 	private static final String TAG = ExpandTextView.class.getSimpleName();
 
     private ValueAnimator expandAnimator;
     private ObjectAnimator rotateAnimator;
-    private int duration = 200;
+    private static final int DURATION = 200;
 
     private float minValue;
     private float maxValue;
+
+    private float btnHeight = 0;
 
     private float value;
 
@@ -36,7 +44,8 @@ public class ExpandTextView extends FrameLayout{
     private ImageView viewBtn;
 
     private boolean isExpand = false;
-    
+
+    private List<String> list;
     private SparseArray<ExpandData> expandStatus;
     private ExpandData expandData;
     private int position;
@@ -44,6 +53,8 @@ public class ExpandTextView extends FrameLayout{
     private boolean isAnimating = false;
 
     private int unexpandedLines = 2;
+
+    private float twoTextWidth = 0;
 
 
     public ExpandTextView(Context context) {
@@ -73,20 +84,25 @@ public class ExpandTextView extends FrameLayout{
 
     private void initAnim() {
         expandAnimator = new ValueAnimator();
-        expandAnimator.setDuration(duration);
+        expandAnimator.setDuration(DURATION);
         expandAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
 
         expandAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 value = (float) valueAnimator.getAnimatedValue();
-//                tvContent.setMaxHeight((int) value);
                 isAnimating = true;
-                if (value >= expandStatus.get(position).getMaxValue() || value <= expandStatus.get(position).getMinValue()) {
-                    isAnimating = false;
-                    return;
+                if (expandStatus.get(position).isLineFeed()) {
+                    if (value >= (expandStatus.get(position).getMaxValue() + btnHeight) || value <= expandStatus.get(position).getMinValue()) {
+                        isAnimating = false;
+                        return;
+                    }
+                } else {
+                    if (value >= expandStatus.get(position).getMaxValue() || value <= expandStatus.get(position).getMinValue()) {
+                        isAnimating = false;
+                        return;
+                    }
                 }
-//                Log.e(TAG, "onAnimationUpdate: value--------------->>" + value);
                 requestLayout();
             }
 
@@ -96,17 +112,20 @@ public class ExpandTextView extends FrameLayout{
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-//                isAnimating = false;
+                if (expandStatus.get(position).isExpand()) {
+                    tvContent.setText(list.get(position));
+                } else {
+                    tvContent.setText(expandStatus.get(position).getMinString());
+                }
             }
 
             @Override
             public void onAnimationStart(Animator animation) {
                 super.onAnimationStart(animation);
-//                isAnimating = true;
             }
         });
 
-        rotateAnimator = new ObjectAnimator().setDuration(200);
+        rotateAnimator = new ObjectAnimator().setDuration(DURATION);
         rotateAnimator.setProperty(View.ROTATION);
     }
 
@@ -114,6 +133,7 @@ public class ExpandTextView extends FrameLayout{
     protected void onFinishInflate() {
         super.onFinishInflate();
         tvContent = (TextView) getChildAt(0);
+        twoTextWidth = tvContent.getPaint().measureText("测试");
         viewBtn = (ImageView) getChildAt(1);
         rotateAnimator.setTarget(viewBtn);
         viewBtn.setOnClickListener(new OnClickListener() {
@@ -131,7 +151,6 @@ public class ExpandTextView extends FrameLayout{
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         if (expandStatus.get(position).getMinValue() == 0) {
             maxValue = getRealTextViewHeight(tvContent);
@@ -149,7 +168,12 @@ public class ExpandTextView extends FrameLayout{
             expandData.setMinValue(minValue);
             expandStatus.put(position, expandData);
             if (expandStatus.get(position).isExpand()) {
-                int spec = MeasureSpec.makeMeasureSpec((int) expandStatus.get(position).getMaxValue(), MeasureSpec.EXACTLY);
+                int spec;
+                if (expandStatus.get(position).isLineFeed()) {
+                    spec = MeasureSpec.makeMeasureSpec((int) (expandStatus.get(position).getMaxValue() + btnHeight), MeasureSpec.EXACTLY);
+                } else {
+                    spec = MeasureSpec.makeMeasureSpec((int) expandStatus.get(position).getMaxValue(), MeasureSpec.EXACTLY);
+                }
                 setMeasuredDimension(widthMeasureSpec, spec);
                 viewBtn.setRotation(180);
             } else {
@@ -163,7 +187,12 @@ public class ExpandTextView extends FrameLayout{
                 setMeasuredDimension(widthMeasureSpec, spec);
             } else {
                 if (expandStatus.get(position).isExpand()) {
-                    int spec = MeasureSpec.makeMeasureSpec((int) expandStatus.get(position).getMaxValue(), MeasureSpec.EXACTLY);
+                    int spec;
+                    if (expandStatus.get(position).isLineFeed()) {
+                        spec = MeasureSpec.makeMeasureSpec((int) (expandStatus.get(position).getMaxValue() + btnHeight), MeasureSpec.EXACTLY);
+                    } else {
+                        spec = MeasureSpec.makeMeasureSpec((int) expandStatus.get(position).getMaxValue(), MeasureSpec.EXACTLY);
+                    }
                     setMeasuredDimension(widthMeasureSpec, spec);
                     viewBtn.setRotation(180);
                 } else {
@@ -173,8 +202,6 @@ public class ExpandTextView extends FrameLayout{
                 }
             }
         }
-        Log.e(TAG, "onMeasure: maxValue:" + maxValue);
-        Log.e(TAG, "onMeasure: minValue:" + minValue);
         if (expandStatus.get(position).getMaxValue() == expandStatus.get(position).getMinValue()) {
             viewBtn.setVisibility(GONE);
         } else {
@@ -191,9 +218,14 @@ public class ExpandTextView extends FrameLayout{
     public void setExpand(boolean isExpand) {
         minValue = expandStatus.get(position).getMinValue();
         maxValue = expandStatus.get(position).getMaxValue();
+        boolean lineFeed = expandStatus.get(position).isLineFeed();
 
         if (isExpand) {
-            expandAnimator.setFloatValues(this.getHeight(), maxValue);
+            if (lineFeed) {
+                expandAnimator.setFloatValues(this.getHeight(), maxValue + btnHeight);
+            } else {
+                expandAnimator.setFloatValues(this.getHeight(), maxValue);
+            }
             rotateAnimator.setFloatValues(0, 180);
         } else {
             expandAnimator.setFloatValues(this.getHeight(), minValue);
@@ -204,17 +236,56 @@ public class ExpandTextView extends FrameLayout{
     }
 
     /**
-     *
-     * @param text
+     * use in list
+     * @param list
      * @param expandStatus
      * @param position
      */
-    public void setText(String text, SparseArray<ExpandData> expandStatus, int position) {
+    public void setText(final List<String> list, final SparseArray<ExpandData> expandStatus, final int position) {
+        this.list = list;
         this.expandStatus = expandStatus;
         this.expandData = expandStatus.get(position);
         this.isExpand = this.expandData.isExpand();
         this.position = position;
-        tvContent.setText(text);
+        tvContent.setText(list.get(position));
+        tvContent.post(new Runnable() {
+            @Override
+            public void run() {
+                if (tvContent.getLineCount() > 3) {
+                    int lineEnd = tvContent.getLayout().getLineEnd(2);
+                    Log.e(TAG, "run: lineEnd:" + lineEnd + ";position:" + position);
+                    if (lineEnd > 0 && lineEnd <= list.get(position).length()) {
+                        String substring = list.get(position).substring(0, lineEnd - 3);
+                        substring += "...";
+                        expandData.setMinString(substring);
+                    }
+                } else {
+                    expandData.setMinString(null);
+                }
+
+                expandStatus.put(position, expandData);
+                int tvWidth = tvContent.getWidth();
+
+                float lineRight = tvContent.getLayout().getLineRight(tvContent.getLineCount() - 1);
+                if (lineRight > tvWidth - twoTextWidth) {
+                    expandData.setLineFeed(true);
+                    expandStatus.put(position, expandData);
+                }
+
+                if (!TextUtils.isEmpty(expandStatus.get(position).getMinString()) && !expandStatus.get(position).isExpand()) {
+                    tvContent.setText(expandStatus.get(position).getMinString());
+                }
+            }
+        });
+
+        if (btnHeight <= 0) {
+            viewBtn.post(new Runnable() {
+                @Override
+                public void run() {
+                    btnHeight = viewBtn.getHeight();
+                }
+            });
+        }
         this.requestLayout();
     }
 }

@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private String[] str = new String[]{
-            "记忆，像是倒在掌心的流水，无论你我摊开还是紧握，它总会渐渐流逝。只是，心也在慢慢枯萎。",
+            "记忆，像是倒在掌心的流水，无论你我摊开还是紧握，它总会渐渐流逝。只是，心也在慢慢枯萎。测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试",
             "人真的要自己争气。一旦做出成绩来，那么全世界都将和颜悦色。事情都是有正反面的，只要摆正心态，人生中没有朋友，会孤单；没有敌人，会失败；因为朋友是用来依赖的，敌人是用来激发自己潜能的。没反应也是一种反应，没表情也是一种表情，不选择也是一种选择，不回应也是一种回应。",
             "人在最好的时光，总会犯上一些痴，一些傻。哪一段青春不荒唐，哪一场爱情不受伤。",
             "再好的东西，也有失去的一天，再美的事物，也有淡忘的一天。如果不能拥有就放手，如果舍不得就痛苦，该珍惜就珍惜，该放弃就放弃，走得轻松，活得才顺心。别问谁的行为伤了你，谁的感情苦了你。",
@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
 //                tv.setLines(3);
 //            }
             ExpandTextView expandTextView = (ExpandTextView) convertView.findViewById(R.id.expand_layout);
-            expandTextView.setText(list.get(position), mCollapsedStatus, position);
+            expandTextView.setText(list, mCollapsedStatus, position);
 
             return convertView;
         }

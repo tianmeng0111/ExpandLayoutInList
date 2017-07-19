@@ -11,6 +11,10 @@ public class ExpandData {
     private float minValue = 0;
     private float maxValue = 0;
 
+    private String minString;
+
+    private boolean isLineFeed = false;
+
     public boolean isExpand() {
         return isExpand;
     }
@@ -35,4 +39,19 @@ public class ExpandData {
         this.maxValue = maxValue;
     }
 
+    public String getMinString() {
+        return minString;
+    }
+
+    public void setMinString(String minString) {
+        this.minString = minString;
+    }
+
+    public boolean isLineFeed() {
+        return isLineFeed;
+    }
+
+    public void setLineFeed(boolean lineFeed) {
+        isLineFeed = lineFeed;
+    }
 }
